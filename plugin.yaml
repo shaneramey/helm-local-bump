@@ -1,0 +1,8 @@
+name: "local_bump"
+version: "0.0.1"
+usage: "local_bump [major|minor|patch]"
+description: |-
+  Helm plugin for incrementing version number in local Chart.yaml file
+  Usage: "helm local_bump [major|minor|patch]"
+command: "$HELM_PLUGIN_DIR/local_bump.py"
+ignoreFlags: false
