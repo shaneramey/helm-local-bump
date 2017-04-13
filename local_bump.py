@@ -47,6 +47,7 @@ def main():
     print "new version: {}".format('.'.join(new_semver))
     with open(path_to_chart_yaml, 'w') as outfile:
         yaml.dump(chart_yaml, outfile, Dumper=yaml.RoundTripDumper)
+    outfile.close()
     
 if __name__ == "__main__":
     main()
