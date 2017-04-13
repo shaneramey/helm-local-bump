@@ -1,6 +1,11 @@
 #! /usr/bin/env python
 
 """local_bump.py: Bump a local Helm Chart.yaml
+cd /Users/sramey/git/du/landscape
+make -C ../apps/helm-chart-publisher publish_helm && \
+helm repo update && \
+helm local_bump -f helm-chart-publisher/helm-chart-publisher/helm-chart-publisher.yaml --patch && \
+make deploy
 
 Usage:
   local_bump.py -f FILE (--major | --minor | --patch)
