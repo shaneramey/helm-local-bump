@@ -1,8 +1,8 @@
 name: "local_bump"
 version: "0.0.1"
-usage: "local_bump [major|minor|patch]"
+usage: "local_bump -f FILE (--bump-level=BUMP_LEVEL | --bump-version=BUMP_VERSION)"
 description: |-
-  Helm plugin for incrementing version number in local Chart.yaml file
-  Usage: "helm local_bump [major|minor|patch]"
+  Helm plugin for bumping/manually setting version number in local Chart.yaml file
+  Usage: "local_bump -f FILE (--bump-level=BUMP_LEVEL | --bump-version=BUMP_VERSION)"
 command: "$HELM_PLUGIN_DIR/local_bump.py"
 ignoreFlags: false
