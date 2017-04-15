@@ -57,7 +57,6 @@ def main():
         old_semver = the_yaml['release']['version'].split('.')
     else:
         raise ValueError('Could not parse yaml contents for Helm or Landscape')
-    print "old version: {}".format('.'.join(old_semver))
 
     # Bump version
     new_semver = []
@@ -80,7 +79,7 @@ def main():
         chart_repo_path = the_yaml['release']['chart'].split(':')[0]
         chart_and_version_path = "{}:{}".format(chart_repo_path, new_version)
         the_yaml['release']['chart'] = chart_and_version_path
-    print "new version: {}".format('.'.join(new_semver))
+    print "bumped to version {}".format('.'.join(new_semver))
     with open(path_to_chart_or_landscape_yaml, 'w') as outfile:
         yaml.dump(the_yaml, outfile, Dumper=yaml.RoundTripDumper)
     outfile.close()
