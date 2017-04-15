@@ -92,7 +92,7 @@ def main():
                 1], str(int(old_semver[2]) + 1)]
         else:
             print "Invalid bump level: '{}'. Please specify one of major, minor, patch".format(level_of_bump)
-            new_version = '.'.join(new_semver)
+        new_version = '.'.join(new_semver)
 
     if manual_version_of_bump is not None:
         if is_semver_format(manual_version_of_bump):
