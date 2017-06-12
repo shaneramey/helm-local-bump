@@ -70,6 +70,8 @@ def main():
     elif is_landscape(the_yaml):
         old_version = the_yaml['release']['version']
     else:
+        print "Oops. Couldnt parse the yaml:"
+	print the_yaml
         raise ValueError('Could not parse yaml contents for Helm or Landscape')
 
     if not is_semver_format(old_version):
