@@ -11,9 +11,10 @@ make deploy
 ```
 
 Usage:
-  local_bump.py -f FILE (--bump-level=BUMP_LEVEL | --bump-version=BUMP_VERSION)
+  local_bump.py [-q] -f FILE (--bump-level=BUMP_LEVEL | --bump-version=BUMP_VERSION)
 
 Options:
+    -q                                  Quiet mode. Output only new version
     -f FILE				Helm Chart.yaml or Landscape yaml
     --bump-level=BUMP_LEVEL		Bump Level: (major|minor|patch)
     --bump-version=BUMP_VERSION		Bump Version: manually set version
@@ -56,6 +57,7 @@ def main():
     level_of_bump = args['--bump-level']
     manual_version_of_bump = args['--bump-version']
     path_to_chart_or_landscape_yaml = args['-f']
+    quiet_mode = args['-q']
 
     # Read the YAML file we're bumping
     the_yaml = {}
@@ -113,7 +115,10 @@ def main():
         chart_repo_path = the_yaml['release']['chart'].split(':')[0]
         chart_and_version_path = "{}:{}".format(chart_repo_path, new_version)
         the_yaml['release']['chart'] = chart_and_version_path
-    print "bumped to version {}".format(new_version)
+    if quiet_mode:
+        print new_version
+    else:
+        print "bumped to version {}".format(new_version)
     with open(path_to_chart_or_landscape_yaml, 'w') as outfile:
         yaml.dump(the_yaml, outfile, Dumper=yaml.RoundTripDumper)
     outfile.close()
