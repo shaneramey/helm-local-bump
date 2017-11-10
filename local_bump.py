@@ -24,6 +24,7 @@ Options:
 import docopt
 import os
 import sys
+import re
 from ruamel import yaml
 
 
@@ -42,14 +43,62 @@ def is_landscape(yaml_contents):
 
 def is_semver_format(dotted_string):
     semver_list = dotted_string.split('.')
-    if len(semver_list) == 3 \
-        and type(int(semver_list[0])) is int \
-        and type(int(semver_list[1])) is int \
-        and type(int(semver_list[2])) is int:
+    major_version = semver_list[0]
+    minor_version = semver_list[1]
+    patch_version_and_metadata = semver_list[2]
+    patch_version, metadata_version = re.match("^([0-9])+(.*)", patch_version_and_metadata).groups()
+
+    if type(int(major_version)) is int \
+        and type(int(minor_version)) is int \
+        and type(int(patch_version)) is int:
         return True
     else:
         return False
 
+def bump_version(original_version, bump_level):
+    """Returns a bumped version
+    Arguments:
+        original_version: a str containing the current version
+
+    Returns:
+        Bumped version str
+    """
+    old_semver = original_version.split('.')
+    current_major_version = int(old_semver[0])
+    current_minor_version = int(old_semver[1])
+    # parse metadata out of semver string for incrementing patch level
+    current_patch_version_and_metadata = old_semver[2]
+    current_patch_version_str, version_metadata = re.match("^([0-9])+(.*)",
+                                        current_patch_version_and_metadata
+                                        ).groups()
+    current_patch_version = int(current_patch_version_str)
+
+    # increment a bump level by 1 and return result
+    if bump_level == 'major':
+        return compose_semver(current_major_version + 1,
+                                    current_minor_version,
+                                    current_patch_version,
+                                    version_metadata)
+    elif bump_level == 'minor':
+        return compose_semver(current_major_version,
+                                    current_minor_version + 1,
+                                    current_patch_version,
+                                    version_metadata)
+    elif bump_level == 'patch':
+        return compose_semver(current_major_version,
+                                    current_minor_version,
+                                    current_patch_version + 1,
+                                    version_metadata)
+    else:
+        raise ValueError("Invalid bump level: '{}'. Please specify one of major, minor, patch".format(bump_level))
+
+
+def compose_semver(major, minor, patch, metadata):
+    return "{0}.{1}.{2}{3}".format(
+                        major,
+                        minor,
+                        patch,
+                        metadata)
 
 def main():
     args = docopt.docopt(__doc__)
@@ -68,57 +117,35 @@ def main():
             print(exc)
     # Attempt to parse YAML contents as Chart or Landscape file
     if is_chart(the_yaml):
-        old_version = the_yaml['version']
+        current_version = the_yaml['version']
     elif is_landscape(the_yaml):
-        old_version = the_yaml['release']['version']
+        current_version = the_yaml['release']['version']
     else:
-        print "Oops. Couldnt parse the yaml:"
-	print the_yaml
-        raise ValueError('Could not parse yaml contents for Helm or Landscape')
+        raise ValueError("Couldn\'t parse as Helm Chart or landscaper yaml: {0}".format(the_yaml))
 
-    if not is_semver_format(old_version):
-        print "Invalid format of parsed semver: {}".format(old_version)
-        sys.exit(4)
-    old_semver = old_version.split('.')
-
-    # Bump version
-    new_version = []
-    # if --bump-level is passed
-    if level_of_bump is not None:
-        if level_of_bump == 'major':
-            new_semver = [str(int(old_semver[0]) + 1),
-                          old_semver[1], old_semver[2]]
-        elif level_of_bump == 'minor':
-            new_semver = [old_semver[0], str(
-                int(old_semver[1]) + 1), old_semver[2]]
-        elif level_of_bump == 'patch':
-            new_semver = [old_semver[0], old_semver[
-                1], str(int(old_semver[2]) + 1)]
-        else:
-            print "Invalid bump level: '{}'. Please specify one of major, minor, patch".format(level_of_bump)
-        new_version = '.'.join(new_semver)
-
-    if manual_version_of_bump is not None:
-        if is_semver_format(manual_version_of_bump):
-            new_version = manual_version_of_bump
-        else:
-            print "Invalid format of parsed semver: {}".format(old_version)
-
-    if not is_semver_format(new_version):
-        print "Invalid format of generated semver: {}".format(new_version)
+    if not is_semver_format(current_version):
+        print "Invalid format of parsed semver: {}".format(current_version)
         sys.exit(4)
 
+    new_semver = manual_version_of_bump
+    if level_of_bump:
+        new_semver = bump_version(current_version, level_of_bump)
+
+    if not is_semver_format(new_semver):
+        raise ValueError("Invalid format of generated semver: {}".format(new_semver))
+
+    # Format of landscaper and helm charts yaml differs
     if is_chart(the_yaml):
-        the_yaml['version'] = new_version
+        the_yaml['version'] = new_semver
     elif is_landscape(the_yaml):
-        the_yaml['release']['version'] = new_version
+        the_yaml['release']['version'] = new_semver
         chart_repo_path = the_yaml['release']['chart'].split(':')[0]
-        chart_and_version_path = "{}:{}".format(chart_repo_path, new_version)
+        chart_and_version_path = "{}:{}".format(chart_repo_path, new_semver)
         the_yaml['release']['chart'] = chart_and_version_path
     if quiet_mode:
-        print new_version
+        print new_semver
     else:
-        print "bumped to version {}".format(new_version)
+        print "Bumped to version {}".format(new_semver)
     with open(path_to_chart_or_landscape_yaml, 'w') as outfile:
         yaml.dump(the_yaml, outfile, Dumper=yaml.RoundTripDumper)
     outfile.close()
