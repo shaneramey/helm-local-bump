@@ -7,5 +7,7 @@ helm plugin install https://github.com/shaneramey/helm-local-bump
 
 Usage:
 ```
-helm local_bump path/to/Chart.yaml [major | minor | patch ]
+helm local_bump [-q] path/to/Chart.yaml --bump-level=(major|minor|patch)
+
+helm local_bump [-q] path/to/Chart.yaml --bump-version=1.2.3+asdfg
 ```
