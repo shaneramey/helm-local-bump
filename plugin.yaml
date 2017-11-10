@@ -1,5 +1,5 @@
 name: "local_bump"
-version: "0.0.1"
+version: "0.0.2"
 usage: "local_bump -f FILE (--bump-level=BUMP_LEVEL | --bump-version=BUMP_VERSION)"
 description: |-
   Helm plugin for bumping/manually setting version number in local Chart.yaml file
