@@ -68,7 +68,7 @@ def bump_version(original_version, bump_level):
     current_minor_version = int(old_semver[1])
     # parse metadata out of semver string for incrementing patch level
     current_patch_version_and_metadata = old_semver[2]
-    current_patch_version_str, version_metadata = re.match("^([0-9])+(.*)",
+    current_patch_version_str, version_metadata = re.match("^([0-9]+)(.*)",
                                         current_patch_version_and_metadata
                                         ).groups()
     current_patch_version = int(current_patch_version_str)
