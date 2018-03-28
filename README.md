@@ -1,5 +1,7 @@
 # Helm plugin to parse Chart.yaml and increment the version number
 
+NOTE: This plugin isn't being actively developed. https://github.com/mbenabda/helm-local-chart-version is a great alternative.
+
 Installation:
 ```
 helm plugin install https://github.com/shaneramey/helm-local-bump
